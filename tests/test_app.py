@@ -14,7 +14,7 @@ def client():
 def test_index_loads(client):
     """Homepage returns 200"""
     response = client.get("/")
-    assert response.status_code == 201  # ❌ INTENTIONAL BREAK: should be 200
+    assert response.status_code == 200  # ✅ FIXED
 
 def test_add_task(client):
     response = client.post("/add", data={"title": "Test Task", "priority": "high"})
