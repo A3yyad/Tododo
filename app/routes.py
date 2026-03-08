@@ -36,6 +36,20 @@ def delete(task_id):
     db.session.commit()
     return redirect(url_for("main.index"))
 
+@main.route("/search")
+def search():
+    q = request.args.get("q", "").strip()
+    tasks = []
+    if q:
+        pattern = f"%{q}%"
+        tasks = Task.query.filter(
+            db.or_(
+                Task.title.ilike(pattern),
+                Task.description.ilike(pattern)
+            )
+        ).order_by(Task.created_at.desc()).all()
+    return render_template("search.html", tasks=tasks, q=q)
+
 @main.route("/stats")
 def stats():
     return render_template("stats.html")

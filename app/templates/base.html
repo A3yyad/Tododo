@@ -7,8 +7,13 @@
 </head>
 <body class="bg-light">
   <nav class="navbar navbar-dark bg-dark mb-4">
-    <div class="container">
+    <div class="container d-flex gap-3 align-items-center">
       <a class="navbar-brand" href="/">📝 ToDo SaaS</a>
+      <form action="/search" method="GET" class="d-flex gap-2 ms-auto me-3">
+        <input name="q" class="form-control form-control-sm"
+               placeholder="Search tasks..." style="width:220px">
+        <button class="btn btn-outline-light btn-sm">🔍</button>
+      </form>
       <a class="btn btn-outline-light btn-sm" href="/stats">📊 Stats</a>
     </div>
   </nav>
