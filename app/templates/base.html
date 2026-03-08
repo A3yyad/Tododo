@@ -2,16 +2,212 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>ToDo SaaS</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Taskflow{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0d0f14;--bg2:#13161e;--bg3:#1a1e2a;--bg4:#222738;
+      --border:#2a2f42;--text:#e8eaf0;--muted:#6b7280;
+      --accent:#7c6af7;--accent2:#a78bfa;--green:#22c55e;
+      --yellow:#f59e0b;--red:#ef4444;--blue:#3b82f6;--cyan:#06b6d4;
+      --radius:12px;--radius-sm:7px;--shadow:0 4px 24px rgba(0,0,0,.45);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;font-size:15px;line-height:1.6;}
+    .sidebar{width:240px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;}
+    .sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid var(--border);}
+    .sidebar-logo h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.5px;background:linear-gradient(135deg,var(--accent2),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .sidebar-logo p{font-size:11px;color:var(--muted);margin-top:2px;}
+    .sidebar-search{padding:16px 14px 8px;}
+    .sidebar-search form{display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;transition:border-color .2s;}
+    .sidebar-search form:focus-within{border-color:var(--accent);}
+    .sidebar-search input{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:inherit;font-size:13px;padding:8px 10px;}
+    .sidebar-search input::placeholder{color:var(--muted);}
+    .sidebar-search button{background:none;border:none;cursor:pointer;color:var(--muted);padding:0 10px;font-size:15px;transition:color .2s;}
+    .sidebar-search button:hover{color:var(--accent2);}
+    .sidebar-nav{flex:1;padding:8px 10px;overflow-y:auto;}
+    .nav-section{margin-bottom:8px;}
+    .nav-label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:10px 8px 4px;}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius-sm);color:var(--muted);text-decoration:none;font-size:13.5px;font-weight:500;transition:background .15s,color .15s;cursor:pointer;border:none;background:none;width:100%;text-align:left;}
+    .nav-item:hover,.nav-item.active{background:var(--bg3);color:var(--text);}
+    .nav-item.active{color:var(--accent2);}
+    .nav-item .icon{font-size:16px;width:20px;text-align:center;}
+    .nav-badge{margin-left:auto;background:var(--bg4);color:var(--muted);font-size:11px;font-weight:600;padding:1px 7px;border-radius:20px;}
+    .nav-badge.red{background:rgba(239,68,68,.15);color:var(--red);}
+    .nav-badge.yellow{background:rgba(245,158,11,.15);color:var(--yellow);}
+    .nav-badge.accent{background:rgba(124,106,247,.15);color:var(--accent2);}
+    .sidebar-footer{padding:14px;border-top:1px solid var(--border);display:flex;gap:8px;}
+    .sidebar-footer a{flex:1;text-align:center;padding:8px;border-radius:var(--radius-sm);background:var(--bg3);color:var(--muted);text-decoration:none;font-size:12px;font-weight:500;transition:background .15s,color .15s;}
+    .sidebar-footer a:hover{background:var(--accent);color:#fff;}
+    .main{margin-left:240px;flex:1;min-height:100vh;display:flex;flex-direction:column;}
+    .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:50;}
+    .topbar-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--text);}
+    .topbar-actions{margin-left:auto;display:flex;gap:8px;}
+    .content{padding:28px 32px;flex:1;}
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-sm);font-family:inherit;font-size:13.5px;font-weight:500;cursor:pointer;border:none;transition:all .15s;text-decoration:none;white-space:nowrap;}
+    .btn-primary{background:var(--accent);color:#fff;}
+    .btn-primary:hover{background:var(--accent2);transform:translateY(-1px);}
+    .btn-ghost{background:var(--bg3);color:var(--muted);border:1px solid var(--border);}
+    .btn-ghost:hover{background:var(--bg4);color:var(--text);}
+    .btn-danger{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.2);}
+    .btn-danger:hover{background:var(--red);color:#fff;}
+    .btn-success{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.2);}
+    .btn-success:hover{background:var(--green);color:#fff;}
+    .btn-sm{padding:5px 11px;font-size:12px;}
+    .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+    .card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+    .card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;}
+    .card-body{padding:20px;}
+    .form-label{display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+    .form-control{width:100%;padding:9px 13px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:inherit;font-size:14px;outline:none;transition:border-color .2s;}
+    .form-control:focus{border-color:var(--accent);}
+    .form-control::placeholder{color:var(--muted);}
+    select.form-control{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:32px;}
+    textarea.form-control{resize:vertical;min-height:80px;}
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.3px;}
+    .badge-high{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.2);}
+    .badge-medium{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.2);}
+    .badge-low{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.2);}
+    .badge-todo{background:rgba(107,114,128,.15);color:#9ca3af;border:1px solid rgba(107,114,128,.2);}
+    .badge-doing{background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.2);}
+    .badge-done{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.2);}
+    .tag-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;}
+    .tag-dot{width:6px;height:6px;border-radius:50%;}
+    .task-list{display:flex;flex-direction:column;gap:6px;}
+    .task-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:flex-start;gap:12px;transition:border-color .15s,transform .15s,box-shadow .15s;position:relative;}
+    .task-card:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:var(--shadow);}
+    .task-card.done{opacity:.55;}
+    .task-card.overdue{border-left:3px solid var(--red);}
+    .task-card.starred{border-left:3px solid var(--yellow);}
+    .task-checkbox{width:18px;height:18px;border-radius:5px;border:2px solid var(--border);background:var(--bg3);cursor:pointer;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+    .task-checkbox.checked{background:var(--green);border-color:var(--green);}
+    .task-checkbox.checked::after{content:"✓";color:#fff;font-size:11px;font-weight:700;}
+    .task-content{flex:1;min-width:0;}
+    .task-title{font-weight:500;font-size:14.5px;color:var(--text);text-decoration:none;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .task-title:hover{color:var(--accent2);}
+    .task-card.done .task-title{text-decoration:line-through;color:var(--muted);}
+    .task-meta{display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap;}
+    .task-date{font-size:12px;color:var(--muted);}
+    .task-date.overdue{color:var(--red);}
+    .task-date.today{color:var(--yellow);}
+    .task-actions{display:flex;gap:4px;align-items:center;opacity:0;transition:opacity .15s;}
+    .task-card:hover .task-actions{opacity:1;}
+    .task-action-btn{background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:4px 8px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;text-decoration:none;transition:all .15s;display:flex;align-items:center;}
+    .task-action-btn:hover{background:var(--bg4);color:var(--text);}
+    .task-action-btn.danger:hover{background:var(--red);color:#fff;border-color:var(--red);}
+    .task-action-btn.star:hover{color:var(--yellow);border-color:var(--yellow);}
+    .progress-wrap{background:var(--bg3);border-radius:20px;height:6px;overflow:hidden;margin-top:6px;}
+    .progress-bar{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--accent),var(--cyan));transition:width .3s ease;}
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;}
+    .kpi-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;transition:border-color .2s,transform .15s;}
+    .kpi-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+    .kpi-value{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1;}
+    .kpi-label{font-size:12px;color:var(--muted);margin-top:4px;font-weight:500;}
+    .kpi-icon{font-size:22px;margin-bottom:8px;}
+    .filter-bar{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;}
+    .filter-group{display:flex;flex-direction:column;gap:4px;min-width:120px;}
+    .filter-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+    .filter-select{padding:7px 30px 7px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:inherit;font-size:13px;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;transition:border-color .2s;}
+    .filter-select:focus{border-color:var(--accent);}
+    .filter-actions{display:flex;gap:6px;margin-left:auto;align-items:flex-end;}
+    .add-task-form{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:20px;overflow:hidden;}
+    .add-task-toggle{width:100%;padding:14px 18px;background:none;border:none;color:var(--muted);font-family:inherit;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:color .15s;}
+    .add-task-toggle:hover{color:var(--text);}
+    .add-task-toggle .plus{width:24px;height:24px;border-radius:6px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;transition:background .15s;}
+    .add-task-toggle:hover .plus{background:var(--accent);border-color:var(--accent);color:#fff;}
+    .add-task-body{border-top:1px solid var(--border);padding:18px;display:none;}
+    .add-task-body.open{display:block;}
+    .form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;}
+    .empty-state{text-align:center;padding:60px 20px;color:var(--muted);}
+    .empty-state .icon{font-size:48px;margin-bottom:14px;opacity:.4;}
+    .empty-state h3{font-family:'Syne',sans-serif;font-size:18px;color:var(--text);margin-bottom:6px;}
+    .chart-bars{display:flex;align-items:flex-end;gap:8px;height:140px;padding:0 4px;}
+    .chart-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;}
+    .chart-val{font-size:11px;color:var(--muted);font-weight:600;}
+    .chart-bar-wrap{flex:1;width:100%;display:flex;align-items:flex-end;}
+    .chart-bar-inner{width:100%;border-radius:4px 4px 0 0;background:linear-gradient(180deg,var(--accent2),var(--accent));min-height:4px;transition:height .4s ease;}
+    .chart-day{font-size:11px;color:var(--muted);}
+    .divider{border:none;border-top:1px solid var(--border);margin:20px 0;}
+    .checkbox-group{display:flex;flex-wrap:wrap;gap:6px;}
+    .checkbox-tag{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--bg3);cursor:pointer;font-size:12px;color:var(--muted);transition:all .15s;}
+    .checkbox-tag input{display:none;}
+    .checkbox-tag.selected{border-color:var(--accent);color:var(--accent2);background:rgba(124,106,247,.1);}
+    ::-webkit-scrollbar{width:5px;height:5px;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+    ::-webkit-scrollbar-thumb:hover{background:var(--muted);}
+  </style>
 </head>
-<body class="bg-light">
-  <nav class="navbar navbar-dark bg-dark mb-4">
-    <div class="container">
-      <a class="navbar-brand" href="/">📝 ToDo SaaS</a>
-      <a class="btn btn-outline-light btn-sm" href="/stats">📊 Stats</a>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <h1>⚡ Taskflow</h1>
+    <p>Professional Task Manager</p>
+  </div>
+  <div class="sidebar-search">
+    <form action="/" method="GET">
+      <input name="q" placeholder="Search tasks…" value="{{ request.args.get('q','') }}">
+      <button type="submit">🔍</button>
+    </form>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-label">Views</div>
+      <a href="/" class="nav-item {{ 'active' if request.endpoint=='main.index' and not request.args.get('due') and not request.args.get('archived') }}">
+        <span class="icon">📋</span> All Tasks
+        {% if total_active is defined %}<span class="nav-badge">{{ total_active }}</span>{% endif %}
+      </a>
+      <a href="/?due=today" class="nav-item {{ 'active' if request.args.get('due')=='today' }}">
+        <span class="icon">📅</span> Due Today
+        {% if today_count is defined and today_count %}<span class="nav-badge yellow">{{ today_count }}</span>{% endif %}
+      </a>
+      <a href="/?due=overdue" class="nav-item {{ 'active' if request.args.get('due')=='overdue' }}">
+        <span class="icon">🔥</span> Overdue
+        {% if overdue_count is defined and overdue_count %}<span class="nav-badge red">{{ overdue_count }}</span>{% endif %}
+      </a>
+      <a href="/?due=this_week" class="nav-item {{ 'active' if request.args.get('due')=='this_week' }}">
+        <span class="icon">📆</span> This Week
+      </a>
+      <a href="/?due=starred" class="nav-item {{ 'active' if request.args.get('due')=='starred' }}">
+        <span class="icon">⭐</span> Starred
+        {% if starred_count is defined and starred_count %}<span class="nav-badge accent">{{ starred_count }}</span>{% endif %}
+      </a>
+      <a href="/?archived=1" class="nav-item {{ 'active' if request.args.get('archived')=='1' }}">
+        <span class="icon">🗄️</span> Archived
+      </a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Status</div>
+      <a href="/?status=todo"  class="nav-item {{ 'active' if request.args.get('status')=='todo' }}"><span class="icon">⬜</span> Todo</a>
+      <a href="/?status=doing" class="nav-item {{ 'active' if request.args.get('status')=='doing' }}"><span class="icon">🔄</span> In Progress</a>
+      <a href="/?status=done"  class="nav-item {{ 'active' if request.args.get('status')=='done' }}"><span class="icon">✅</span> Completed</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Manage</div>
+      <a href="/stats" class="nav-item {{ 'active' if request.endpoint=='main.stats' }}"><span class="icon">📊</span> Analytics</a>
+      <a href="/tags"  class="nav-item {{ 'active' if request.endpoint=='main.tags' }}"><span class="icon">🏷️</span> Tags</a>
     </div>
   </nav>
-  <div class="container">{% block content %}{% endblock %}</div>
+  <div class="sidebar-footer">
+    <a href="/stats">📊 Stats</a>
+    <a href="/tags">🏷️ Tags</a>
+    <a href="/?archived=1">🗄️ Archive</a>
+  </div>
+</aside>
+<main class="main">
+  {% block content %}{% endblock %}
+</main>
+<script>
+  function toggleAddForm(){const b=document.getElementById('addTaskBody');if(b)b.classList.toggle('open');}
+  function toggleAll(src){document.querySelectorAll('.task-cb').forEach(cb=>cb.checked=src.checked);updateBulkBar();}
+  function updateBulkBar(){
+    const checked=document.querySelectorAll('.task-cb:checked').length;
+    const bar=document.getElementById('bulkBar');
+    if(bar){bar.style.display=checked>0?'flex':'none';const cnt=document.getElementById('bulkCount');if(cnt)cnt.textContent=checked+' selected';}
+  }
+</script>
 </body>
 </html>

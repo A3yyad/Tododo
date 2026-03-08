@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Tags — Taskflow{% endblock %}
+{% block content %}
+<div class="topbar"><span class="topbar-title">🏷️ Tags</span></div>
+<div class="content" style="max-width:600px;">
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-header"><span class="card-title">Create New Tag</span></div>
+    <div class="card-body">
+      <form method="POST" action="/tags/add" style="display:flex;gap:10px;align-items:flex-end;">
+        <div style="flex:1;">
+          <label class="form-label">Tag Name</label>
+          <input name="name" class="form-control" placeholder="e.g. work, personal, urgent" required>
+        </div>
+        <div>
+          <label class="form-label">Color</label>
+          <input type="color" name="color" value="#7c6af7" style="width:44px;height:38px;padding:2px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg3);cursor:pointer;">
+        </div>
+        <button class="btn btn-primary">＋ Create</button>
+      </form>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">All Tags</span>
+      <span style="margin-left:auto;font-size:12px;color:var(--muted);">{{ tags|length }} total</span>
+    </div>
+    <div class="card-body">
+      {% if tags %}
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        {% for tag in tags %}
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);">
+          <div style="width:14px;height:14px;border-radius:50%;background:{{ tag.color }};flex-shrink:0;"></div>
+          <span class="tag-chip" style="background:{{ tag.color }}22;border:1px solid {{ tag.color }}44;color:{{ tag.color }};">{{ tag.name }}</span>
+          <span style="font-size:12px;color:var(--muted);margin-left:auto;">{{ tag.tasks|length }} task{{ 's' if tag.tasks|length!=1 }}</span>
+          <a href="/?tag={{ tag.name }}" class="btn btn-ghost btn-sm">View</a>
+          <a href="/tags/delete/{{ tag.id }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete tag?')">✕</a>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state" style="padding:30px 0;">
+        <div class="icon">🏷️</div>
+        <h3>No tags yet</h3>
+        <p>Create your first tag above.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

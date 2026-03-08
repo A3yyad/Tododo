@@ -8,7 +8,7 @@ migrate = Migrate()
 def create_app():
     app = Flask(__name__)
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///todo.db"
-    app.config["SECRET_KEY"] = "dev-secret-key"
+    app.config["SECRET_KEY"] = "dev-secret-key-change-in-prod"
 
     db.init_app(app)
     migrate.init_app(app, db)
